@@ -1,0 +1,22 @@
+{
+  "name": "ar",
+  "version": "1.0.0",
+  "description": "AutoTyper local agent — polls remote server and types/pastes into the focused window",
+  "bin": {
+    "ar": "./bin/ar.js"
+  },
+  "main": "bin/ar.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node bin/ar.js start",
+    "stop": "node bin/ar.js stop",
+    "status": "node bin/ar.js status"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@nut-tree-fork/nut-js": "^4.2.6",
+    "clipboardy": "^2.3.0"
+  }
+}
