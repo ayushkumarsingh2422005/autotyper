@@ -73,61 +73,59 @@ export default function Home() {
   }
 
   return (
-    <div className="flex flex-1 flex-col">
-      <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col justify-center px-5 py-10 sm:px-8">
-        <header className="mb-8">
+    <div className="flex h-dvh min-h-0 flex-col px-4 py-4 sm:px-6 sm:py-5">
+      <header className="mb-3 flex shrink-0 flex-wrap items-end justify-between gap-3">
+        <div>
           <p
-            className="mb-3 font-mono text-[11px] uppercase tracking-[0.28em]"
+            className="mb-1 font-mono text-[10px] uppercase tracking-[0.28em]"
             style={{ color: "var(--muted)" }}
           >
             remote → local
           </p>
           <h1
-            className="text-5xl font-extrabold tracking-tight sm:text-6xl"
+            className="text-3xl font-extrabold tracking-tight sm:text-4xl"
             style={{ letterSpacing: "-0.04em" }}
           >
             AutoTyper
           </h1>
-          <p className="mt-3 max-w-md text-base leading-relaxed" style={{ color: "var(--muted)" }}>
-            Drop text here. Your local <span className="font-mono text-[var(--ink)]">ar start</span>{" "}
-            agent types it via keyboard only (no clipboard) — works even when paste is blocked.
-          </p>
-        </header>
+        </div>
 
-        <label className="mb-2 block font-mono text-xs uppercase tracking-wider" style={{ color: "var(--muted)" }}>
-          Shared secret
-        </label>
-        <input
-          type="password"
-          value={secret}
-          onChange={(e) => persistSecret(e.target.value)}
-          placeholder="AR_SECRET"
-          className="mb-5 w-full rounded-md border px-3 py-2.5 font-mono text-sm outline-none transition focus:border-[var(--accent)]"
-          style={{
-            background: "var(--bg-elevated)",
-            borderColor: "var(--line)",
-            color: "var(--ink)",
-          }}
-        />
+        <div className="flex min-w-[220px] flex-1 flex-col sm:max-w-xs">
+          <label
+            className="mb-1 font-mono text-[10px] uppercase tracking-wider"
+            style={{ color: "var(--muted)" }}
+          >
+            Shared secret
+          </label>
+          <input
+            type="password"
+            value={secret}
+            onChange={(e) => persistSecret(e.target.value)}
+            placeholder="AR_SECRET"
+            className="w-full rounded-md border px-3 py-2 font-mono text-sm outline-none transition focus:border-[var(--accent)]"
+            style={{
+              background: "var(--bg-elevated)",
+              borderColor: "var(--line)",
+              color: "var(--ink)",
+            }}
+          />
+        </div>
+      </header>
 
-        <label className="mb-2 block font-mono text-xs uppercase tracking-wider" style={{ color: "var(--muted)" }}>
-          Text to deliver
-        </label>
-        <textarea
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          placeholder="Paste or type the content your machine should output…"
-          rows={10}
-          className="w-full resize-y rounded-md border px-3 py-3 font-mono text-sm leading-relaxed outline-none transition focus:border-[var(--accent)]"
-          style={{
-            background: "var(--bg-elevated)",
-            borderColor: "var(--line)",
-            color: "var(--ink)",
-            minHeight: "220px",
-          }}
-        />
+      <textarea
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        placeholder="Paste or type the content your machine should output…"
+        className="min-h-0 w-full flex-1 resize-none rounded-md border px-4 py-4 font-mono text-sm leading-relaxed outline-none transition focus:border-[var(--accent)]"
+        style={{
+          background: "var(--bg-elevated)",
+          borderColor: "var(--line)",
+          color: "var(--ink)",
+        }}
+      />
 
-        <div className="mt-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="mt-3 flex shrink-0 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-wrap items-center gap-3">
           <div
             className="inline-flex rounded-md border p-1"
             style={{ borderColor: "var(--line)", background: "var(--bg-elevated)" }}
@@ -141,30 +139,27 @@ export default function Home() {
               Fast type
             </ModeButton>
           </div>
-
-          <button
-            type="button"
-            onClick={onSend}
-            disabled={pending}
-            className="rounded-md px-5 py-2.5 font-semibold tracking-wide transition disabled:opacity-50"
-            style={{
-              background: "var(--accent)",
-              color: "#0b120c",
-            }}
+          <p
+            className="min-h-[1.25rem] font-mono text-sm"
+            style={{ color: error ? "var(--danger)" : "var(--accent)" }}
           >
-            {pending ? "Sending…" : "Send"}
-          </button>
+            {error || message || ""}
+          </p>
         </div>
 
-        <p className="mt-4 min-h-[1.25rem] font-mono text-sm" style={{ color: error ? "var(--danger)" : "var(--accent)" }}>
-          {error || message || ""}
-        </p>
-
-        <footer className="mt-10 border-t pt-4 font-mono text-xs leading-relaxed" style={{ borderColor: "var(--line)", color: "var(--muted)" }}>
-          Output goes into whatever window has your typing cursor. Local:{" "}
-          <code className="text-[var(--ink)]">ar start</code>. On Vercel, set Upstash Redis env vars so jobs persist.
-        </footer>
-      </main>
+        <button
+          type="button"
+          onClick={onSend}
+          disabled={pending}
+          className="rounded-md px-6 py-2.5 font-semibold tracking-wide transition disabled:opacity-50"
+          style={{
+            background: "var(--accent)",
+            color: "#0b120c",
+          }}
+        >
+          {pending ? "Sending…" : "Send"}
+        </button>
+      </div>
     </div>
   );
 }
