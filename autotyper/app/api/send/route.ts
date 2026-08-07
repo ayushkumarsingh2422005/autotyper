@@ -16,7 +16,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
-  const text = typeof body.text === "string" ? body.text : "";
+  const rawText = typeof body.text === "string" ? body.text : "";
+  // Never keep tabs in queued jobs — always 4 spaces (editors mishandle Tab)
+  const text = rawText.replace(/\t/g, "    ");
   if (!text.trim()) {
     return NextResponse.json({ error: "Text is required" }, { status: 400 });
   }
