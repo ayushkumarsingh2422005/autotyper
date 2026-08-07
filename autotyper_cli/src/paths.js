@@ -15,7 +15,6 @@ const DEFAULT_CONFIG = {
   typeDelayMs: 35,
   pasteDelayMs: 0, // fast keyboard mode (still keystrokes, never clipboard)
   tabWidth: 4, // every \\t becomes this many spaces — Tab key is never sent
-  clearAutoIndent: true, // after Enter, undo editor auto-indent (LeetCode/Monaco)
 };
 
 function ensureAppDir() {

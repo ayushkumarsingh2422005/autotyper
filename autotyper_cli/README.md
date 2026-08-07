@@ -37,7 +37,6 @@ ar config set <key> <value>
 On Windows, all delivery is **keyboard-only** via Win32 `SendInput` (no clipboard / Ctrl+V / Tab key).
 
 - Tabs are always expanded to spaces (`tabWidth`, default 4)
-- After Enter, auto-indent from LeetCode/Monaco is cleared before the next line is typed (`clearAutoIndent`)
 - **Typing mimic** → human-like delay between keys  
 - **Fast type** (API mode `paste`) → same keystrokes, delay ≈ 0
 

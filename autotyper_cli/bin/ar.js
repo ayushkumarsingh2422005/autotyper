@@ -143,7 +143,6 @@ Config keys:
   typeDelayMs     Base delay between characters in typing mimic mode
   pasteDelayMs    Delay in fast-type mode (default 0; still keyboard, never clipboard)
   tabWidth        Every tab becomes this many spaces (default 4). Tab key is NEVER sent.
-  clearAutoIndent After Enter, backspace editor auto-indent (default true; needed for LeetCode)
 
 Both modes use keyboard mimic only (Win32 SendInput). No clipboard / Ctrl+V / Tab key.
 
@@ -166,9 +165,6 @@ function configCmd(args) {
         console.error(`Invalid number for ${key}`);
         process.exit(1);
       }
-    }
-    if (key === "clearAutoIndent") {
-      value = !["0", "false", "no", "off"].includes(String(value).toLowerCase());
     }
     const next = saveConfig({ [key]: value });
     console.log(`Updated ${key}. Current config:`);

@@ -29,13 +29,11 @@ async function deliver(job, config) {
     log(`mode=paste → fast keyboard (delayMs=${fastDelay})`);
     await pasteText(job.text, log, {
       tabWidth: config.tabWidth,
-      clearAutoIndent: config.clearAutoIndent,
     });
   } else {
     log(`mode=type → typing mimic (delayMs=${config.typeDelayMs || 35})`);
     await typeText(job.text, config.typeDelayMs || 35, log, {
       tabWidth: config.tabWidth,
-      clearAutoIndent: config.clearAutoIndent,
     });
   }
   log(`done job ${job.id}`);
