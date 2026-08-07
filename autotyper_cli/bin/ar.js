@@ -132,6 +132,7 @@ Usage:
   ar config                Show config
   ar config set <k> <v>    Update a config value
   ar logs                  Tail recent log lines
+  ar test [paste|type]     3s countdown then paste/type a sample (debug)
   ar help                  Show this help
 
 Config keys:
@@ -139,7 +140,12 @@ Config keys:
   secret          Shared secret (must match AR_SECRET on the server)
   pollIntervalMs  How often to poll (default 1500)
   focusDelayMs    Delay before typing/pasting so you can focus a window
-  typeDelayMs     Base delay between characters in typing mode
+  typeDelayMs     Base delay between characters in typing mimic mode
+  pasteDelayMs    Delay in fast-type mode (default 0; still keyboard, never clipboard)
+  tabMode         How \\t is typed: char (default) | spaces | key
+  tabWidth        Spaces used when tabMode=spaces (default 4)
+
+Both modes use keyboard mimic only (Win32 SendInput). No clipboard / Ctrl+V.
 
 Typical flow:
   1. Deploy / run the Next.js app (set AR_SECRET)
@@ -154,12 +160,16 @@ function configCmd(args) {
   if (args[0] === "set" && args[1] && args[2] !== undefined) {
     const key = args[1];
     let value = args.slice(2).join(" ");
-    if (["pollIntervalMs", "focusDelayMs", "typeDelayMs"].includes(key)) {
+    if (["pollIntervalMs", "focusDelayMs", "typeDelayMs", "pasteDelayMs", "tabWidth"].includes(key)) {
       value = Number(value);
       if (!Number.isFinite(value) || value < 0) {
         console.error(`Invalid number for ${key}`);
         process.exit(1);
       }
+    }
+    if (key === "tabMode" && !["char", "spaces", "key"].includes(value)) {
+      console.error('tabMode must be one of: char, spaces, key');
+      process.exit(1);
     }
     const next = saveConfig({ [key]: value });
     console.log(`Updated ${key}. Current config:`);
@@ -188,6 +198,27 @@ function logs() {
   console.log(lines.slice(-40).join("\n"));
 }
 
+async function testInput(modeArg) {
+  const mode = modeArg === "type" ? "type" : "paste";
+  const { pasteText, typeText, sleep } = require("../src/input");
+  console.log(`Focus Notepad (or any input) now…`);
+  console.log(`Testing ${mode === "paste" ? "fast keyboard" : "typing mimic"} in 3 seconds…`);
+  console.log(`(keyboard only — no clipboard)`);
+  await sleep(3000);
+  const sample =
+    mode === "type"
+      ? "AR type test OK\nsecond line\twith tab"
+      : "AR fast-type test OK — keyboard only, no paste.";
+  try {
+    if (mode === "paste") await pasteText(sample, console.log);
+    else await typeText(sample, 40, console.log);
+    console.log("Done. You should see the test text in the focused window.");
+  } catch (err) {
+    console.error("Test failed:", err.message || err);
+    process.exit(1);
+  }
+}
+
 function main() {
   const [cmd, ...rest] = process.argv.slice(2);
 
@@ -206,6 +237,12 @@ function main() {
       break;
     case "logs":
       logs();
+      break;
+    case "test":
+      testInput(rest[0]).catch((err) => {
+        console.error(err.message || err);
+        process.exit(1);
+      });
       break;
     case "help":
     case "--help":

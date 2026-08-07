@@ -28,9 +28,16 @@ ar start      # run poller in background
 ar stop
 ar status
 ar logs
+ar test       # focus Notepad, wait 3s, paste a sample (debug input)
+ar test type  # same but character-by-character
 ar config
 ar config set <key> <value>
 ```
+
+On Windows, all delivery is **keyboard-only** via Win32 `SendInput` (no clipboard / Ctrl+V), so editors that block paste still accept it.
+
+- **Typing mimic** → human-like delay between keys  
+- **Fast type** (API mode `paste`) → same keystrokes, delay ≈ 0
 
 Config lives in `~/.ar/config.json`. Logs in `~/.ar/agent.log`.
 

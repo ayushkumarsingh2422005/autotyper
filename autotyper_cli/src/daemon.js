@@ -1,14 +1,6 @@
-const { keyboard, Key } = require("@nut-tree-fork/nut-js");
 const { loadConfig, LOG_PATH, ensureAppDir } = require("./paths");
+const { pasteText, typeText, sleep } = require("./input");
 const fs = require("fs");
-
-keyboard.config.autoDelayMs = 0;
-
-let clipboardy;
-function getClipboard() {
-  if (!clipboardy) clipboardy = require("clipboardy");
-  return clipboardy;
-}
 
 function log(...args) {
   ensureAppDir();
@@ -18,59 +10,33 @@ function log(...args) {
   } catch {
     /* ignore */
   }
-  // Also echo when not fully detached / for debugging
   if (process.env.AR_FOREGROUND === "1") {
     console.log(...args);
   }
 }
 
-function sleep(ms) {
-  return new Promise((r) => setTimeout(r, ms));
-}
-
-async function pasteText(text) {
-  const clip = getClipboard();
-  await clip.write(text);
-  const modifier = process.platform === "darwin" ? Key.LeftSuper : Key.LeftControl;
-  await keyboard.pressKey(modifier);
-  await keyboard.pressKey(Key.V);
-  await keyboard.releaseKey(Key.V);
-  await keyboard.releaseKey(modifier);
-}
-
-async function press(key) {
-  await keyboard.pressKey(key);
-  await keyboard.releaseKey(key);
-}
-
-async function typeText(text, delayMs) {
-  for (const char of text) {
-    if (char === "\r") continue;
-    if (char === "\n") {
-      await press(Key.Enter);
-    } else if (char === "\t") {
-      await press(Key.Tab);
-    } else {
-      try {
-        await keyboard.type(char);
-      } catch {
-        // Fallback for characters nut-js can't type directly
-        await pasteText(char);
-      }
-    }
-    const jitter = Math.floor(Math.random() * Math.max(1, delayMs));
-    await sleep(delayMs + jitter);
-  }
-}
-
 async function deliver(job, config) {
   log(`delivering job ${job.id} mode=${job.mode} chars=${job.text.length}`);
-  await sleep(config.focusDelayMs || 800);
+  const delay = config.focusDelayMs || 800;
+  log(`waiting ${delay}ms — focus the target window now`);
+  await sleep(delay);
 
   if (job.mode === "paste") {
-    await pasteText(job.text);
+    // Fast keyboard dump (no clipboard — anti-paste safe)
+    const fastDelay = Number.isFinite(config.pasteDelayMs)
+      ? config.pasteDelayMs
+      : 0;
+    log(`mode=paste → fast keyboard (delayMs=${fastDelay})`);
+    await pasteText(job.text, log, {
+      tabMode: config.tabMode,
+      tabWidth: config.tabWidth,
+    });
   } else {
-    await typeText(job.text, config.typeDelayMs || 35);
+    log(`mode=type → typing mimic (delayMs=${config.typeDelayMs || 35})`);
+    await typeText(job.text, config.typeDelayMs || 35, log, {
+      tabMode: config.tabMode,
+      tabWidth: config.tabWidth,
+    });
   }
   log(`done job ${job.id}`);
 }
@@ -95,12 +61,14 @@ async function pollOnce(config) {
   }
 
   const data = await res.json();
+  if (data.error) throw new Error(data.error);
   return data.job || null;
 }
 
 async function loop() {
   const config = loadConfig();
   log(`agent started → ${config.serverUrl} (poll every ${config.pollIntervalMs}ms)`);
+  log(`platform=${process.platform} input=${process.platform === "win32" ? "SendKeys" : "nut-js"}`);
 
   let busy = false;
   let consecutiveErrors = 0;
@@ -114,6 +82,9 @@ async function loop() {
           try {
             await deliver(job, loadConfig());
             consecutiveErrors = 0;
+          } catch (err) {
+            log("deliver error:", err.message || err);
+            throw err;
           } finally {
             busy = false;
           }
@@ -123,8 +94,7 @@ async function loop() {
       }
     } catch (err) {
       consecutiveErrors += 1;
-      log("poll error:", err.message || err);
-      // Back off a bit on repeated failures
+      log("agent error:", err.message || err);
       await sleep(Math.min(15_000, 1000 * consecutiveErrors));
     }
 

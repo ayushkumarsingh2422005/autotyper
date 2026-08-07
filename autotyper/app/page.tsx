@@ -62,8 +62,8 @@ export default function Home() {
         }
         setMessage(
           mode === "paste"
-            ? `Queued for direct paste · ${data.job?.id ?? ""}`
-            : `Queued for typing · ${data.job?.id ?? ""}`,
+            ? `Queued for fast keyboard type · ${data.job?.id ?? ""}`
+            : `Queued for typing mimic · ${data.job?.id ?? ""}`,
         );
         setText("");
       } catch (err) {
@@ -90,7 +90,7 @@ export default function Home() {
           </h1>
           <p className="mt-3 max-w-md text-base leading-relaxed" style={{ color: "var(--muted)" }}>
             Drop text here. Your local <span className="font-mono text-[var(--ink)]">ar start</span>{" "}
-            agent will paste it or type it into the focused window.
+            agent types it via keyboard only (no clipboard) — works even when paste is blocked.
           </p>
         </header>
 
@@ -138,7 +138,7 @@ export default function Home() {
               Typing mimic
             </ModeButton>
             <ModeButton active={mode === "paste"} onClick={() => setMode("paste")}>
-              Direct paste
+              Fast type
             </ModeButton>
           </div>
 

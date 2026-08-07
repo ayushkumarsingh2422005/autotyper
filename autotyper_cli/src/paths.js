@@ -13,6 +13,10 @@ const DEFAULT_CONFIG = {
   pollIntervalMs: 1500,
   focusDelayMs: 800,
   typeDelayMs: 35,
+  pasteDelayMs: 0, // fast keyboard mode (still keystrokes, never clipboard)
+  // char = unicode tab char once | spaces = tabWidth spaces | key = Tab key
+  tabMode: "char",
+  tabWidth: 4,
 };
 
 function ensureAppDir() {
